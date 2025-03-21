@@ -9,7 +9,6 @@ public class LispEvaluator {
     }
 
     private void cargarFuncionesBasicas() {
-        // Definimos funciones básicas en el entorno
         environment.put("+", (LispFunction) args -> (double) args.get(0) + (double) args.get(1));
         environment.put("-", (LispFunction) args -> (double) args.get(0) - (double) args.get(1));
         environment.put("*", (LispFunction) args -> (double) args.get(0) * (double) args.get(1));
@@ -17,6 +16,9 @@ public class LispEvaluator {
         environment.put(">", (LispFunction) args -> (double) args.get(0) > (double) args.get(1));
         environment.put("<", (LispFunction) args -> (double) args.get(0) < (double) args.get(1));
         environment.put("=", (LispFunction) args -> Objects.equals(args.get(0), args.get(1)));
+        environment.put("ATOM", (LispFunction) args -> args.get(0) instanceof String || args.get(0) instanceof Number);
+        environment.put("LIST", (LispFunction) args -> args.get(0) instanceof List);
+        environment.put("EQUAL", (LispFunction) args -> Objects.equals(args.get(0), args.get(1)));
     }
 
     public Object evaluar(Object ast) throws EvaluatorException {
@@ -40,7 +42,10 @@ public class LispEvaluator {
             } else if (functionName.equals("setq")) {
                 return definirVariableLisp(list);
             } else if (functionName.equals("quote")) {
-                return list.subList(1, list.size());
+                if (list.size() != 2) {
+                    throw new EvaluatorException("Error: quote necesita exactamente un argumento.");
+                }
+                return list.get(1);
             } else if (functionName.equals("cond")) {
                 return evaluarCond(list);
             }
@@ -83,17 +88,13 @@ public class LispEvaluator {
             if (args.size() != parametros.size()) {
                 throw new EvaluatorException("Cantidad incorrecta de argumentos para la función " + nombre);
             }
-
             Map<String, Object> localEnv = new HashMap<>(environment);
             for (int i = 0; i < parametros.size(); i++) {
                 localEnv.put(parametros.get(i), args.get(i));
             }
-
-            LispEvaluator localEvaluator = new LispEvaluator();
-            localEvaluator.environment = localEnv;
             Object resultado = null;
             for (Object expr : cuerpo) {
-                resultado = localEvaluator.evaluar(expr);
+                resultado = evaluarEnEntorno(expr, localEnv);
             }
             return resultado;
         });
@@ -104,11 +105,16 @@ public class LispEvaluator {
         if (list.size() != 3) {
             throw new EvaluatorException("setq requiere un nombre y un valor.");
         }
-
         String nombre = (String) list.get(1);
         Object valor = evaluar(list.get(2));
         environment.put(nombre, valor);
         return valor;
+    }
+
+    private Object evaluarEnEntorno(Object ast, Map<String, Object> entorno) throws EvaluatorException {
+        LispEvaluator localEvaluator = new LispEvaluator();
+        localEvaluator.environment = entorno;
+        return localEvaluator.evaluar(ast);
     }
 
     @FunctionalInterface
