@@ -1,7 +1,11 @@
-(defun factorial (n)
-  (if (= n 0)
-      1
-      (* n (factorial (- n 1)))))
+import java.util.List;
 
-(format t "~a~%" (factorial 5))
+public class fahrenheitLisp implements LispEvaluator.LispFunction {
+    @Override
+    public Object apply(List<Object> args) throws LispEvaluator.EvaluatorException {
+        double celsius = (double) args.get(0);
+        return (celsius * 9 / 5) + 32;
+    }
+}
+
 
