@@ -30,7 +30,6 @@ public class LispParser {
         } else if (token.equals(")")) {
             throw new RuntimeException("Error: paréntesis inesperado.");
         } else {
-            // Intentamos parsear como número, si no, es un símbolo o variable
             try {
                 return Integer.parseInt(token);
             } catch (NumberFormatException e) {
