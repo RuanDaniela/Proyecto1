@@ -1,31 +1,38 @@
-import java.util.*;
-import java.util.regex.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LispLexer {
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        StringBuilder input = new StringBuilder();
+        String input = "";
         String line;
 
         System.out.println("Introduce tu código LISP (termina con una línea vacía):");
 
+        // Leer las líneas hasta que se introduce una vacía
         while (scanner.hasNextLine()) {
             line = scanner.nextLine();
-            if (line.isEmpty()) break;
-            input.append(line).append(" ");
+            if (line.isEmpty()) {
+                break;
+            }
+            input += line + " ";
         }
-        scanner.close();
+        scanner.close(); // Cierra el Scanner
 
-        // Verificar paréntesis balanceados
-        if (!parentesisBalanceados(input.toString())) {
+        // Verificar si los paréntesis están balanceados
+        if (parentesisBalanceados(input)) {
+            System.out.println("¡La expresión es CORRECTA (paréntesis balanceados)!");
+        } else {
             System.out.println("La expresión es INCORRECTA (problema con los paréntesis).");
-            return;
         }
-        System.out.println("¡La expresión es CORRECTA (paréntesis balanceados)!");
 
-        // Tokenizar y manejar errores
+        // Dividir en tokens y manejar errores
         try {
-            List<String> tokens = dividirEnTokens(input.toString());
+            List<String> tokens = dividirEnTokens(input);
             System.out.println("Tokens encontrados: " + tokens);
         } catch (LexerException e) {
             System.out.println("Error léxico: " + e.getMessage());
@@ -35,22 +42,27 @@ public class LispLexer {
     public static boolean parentesisBalanceados(String expr) {
         int contador = 0;
         for (char c : expr.toCharArray()) {
-            if (c == '(') contador++;
-            else if (c == ')') contador--;
-            if (contador < 0) return false;
+            if (c == '(') {
+                contador++;
+            } else if (c == ')') {
+                contador--;
+            }
+            if (contador < 0) {
+                return false; // Si cierra más paréntesis de los que abre
+            }
         }
-        return contador == 0;
+        return contador == 0; // Verifica si todo está balanceado
     }
 
     public static List<String> dividirEnTokens(String expr) throws LexerException {
         List<String> tokens = new ArrayList<>();
-        // Soporta números negativos, decimales, notación científica, símbolos con caracteres especiales
-        Pattern pattern = Pattern.compile("\\(|\\)|-?\\d+(\\.\\d+)?(e[+-]?\\d+)?|[\\w+\\-*/!?=<>.]+|\\S");
-        Matcher matcher = pattern.matcher(expr.trim());
+        Pattern pattern = Pattern.compile("\\(|\\)|\\w+|\\S");
+        Matcher matcher = pattern.matcher(expr);
 
         while (matcher.find()) {
             String token = matcher.group();
-            if (!token.matches("\\(|\\)|-?\\d+(\\.\\d+)?(e[+-]?\\d+)?|[\\w+\\-*/!?=<>.]+")) {
+            // Verifica si es un carácter inválido
+            if (!token.matches("\\(|\\)|\\w+")) {
                 throw new LexerException("Carácter no válido encontrado: " + token);
             }
             tokens.add(token);
@@ -58,6 +70,7 @@ public class LispLexer {
         return tokens;
     }
 
+    // Clase para manejar errores léxicos
     static class LexerException extends Exception {
         public LexerException(String message) {
             super(message);
