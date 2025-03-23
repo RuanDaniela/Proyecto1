@@ -11,7 +11,7 @@ public class LispEvaluator {
     }
 
     private void cargarFuncionesBasicas() {
-        // Usamos conversión a double para tener más flexibilidad (números decimales)
+        // Conversión a double para mayor flexibilidad (números decimales)
         environment.put("+", (LispFunction) args -> {
             double sum = 0;
             for (Object arg : args) {
