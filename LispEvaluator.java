@@ -6,19 +6,27 @@ public class LispEvaluator {
     public LispEvaluator() {
         environment = new HashMap<>();
         cargarFuncionesBasicas();
+        cargarFuncionesPersonalizadas();
     }
 
     private void cargarFuncionesBasicas() {
-        environment.put("+", (LispFunction) args -> (double) args.get(0) + (double) args.get(1));
-        environment.put("-", (LispFunction) args -> (double) args.get(0) - (double) args.get(1));
-        environment.put("*", (LispFunction) args -> (double) args.get(0) * (double) args.get(1));
-        environment.put("/", (LispFunction) args -> (double) args.get(0) / (double) args.get(1));
-        environment.put(">", (LispFunction) args -> (double) args.get(0) > (double) args.get(1));
-        environment.put("<", (LispFunction) args -> (double) args.get(0) < (double) args.get(1));
-        environment.put("=", (LispFunction) args -> Objects.equals(args.get(0), args.get(1)));
-        environment.put("ATOM", (LispFunction) args -> args.get(0) instanceof String || args.get(0) instanceof Number);
-        environment.put("LIST", (LispFunction) args -> args.get(0) instanceof List);
-        environment.put("EQUAL", (LispFunction) args -> Objects.equals(args.get(0), args.get(1)));
+        environment.put("+", (LispFunction) args -> (Integer) evaluar(args.get(0)) + (Integer) evaluar(args.get(1)));
+        environment.put("-", (LispFunction) args -> (Integer) evaluar(args.get(0)) - (Integer) evaluar(args.get(1)));
+        environment.put("*", (LispFunction) args -> (Integer) evaluar(args.get(0)) * (Integer) evaluar(args.get(1)));
+        environment.put("/", (LispFunction) args -> (Integer) evaluar(args.get(0)) / (Integer) evaluar(args.get(1)));
+        environment.put(">", (LispFunction) args -> (Integer) evaluar(args.get(0)) > (Integer) evaluar(args.get(1)));
+        environment.put("<", (LispFunction) args -> (Integer) evaluar(args.get(0)) < (Integer) evaluar(args.get(1)));
+        environment.put("=", (LispFunction) args -> Objects.equals(evaluar(args.get(0)), evaluar(args.get(1))));
+        environment.put("ATOM", (LispFunction) args -> evaluar(args.get(0)) instanceof String || evaluar(args.get(0)) instanceof Number);
+        environment.put("LIST", (LispFunction) args -> evaluar(args.get(0)) instanceof List);
+        environment.put("EQUAL", (LispFunction) args -> Objects.equals(evaluar(args.get(0)), evaluar(args.get(1))));
+    }
+
+    private void cargarFuncionesPersonalizadas() {
+        // Funciones personalizadas como FACTORIAL, FIBONACCI, FAHRENHEIT
+        environment.put("FACTORIAL", new factorial());
+        environment.put("FIBONACCI", new Fibonacci());
+        environment.put("FAHRENHEIT", new fahrenheit());
     }
 
     public Object evaluar(Object ast) throws EvaluatorException {

@@ -17,6 +17,7 @@ public class LispMain {
                 Object ast = parser.parse();
                 Object resultado = evaluator.evaluar(ast);
                 System.out.println("Resultado: " + resultado);
+                System.out.println(" ");
             } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());
             }
