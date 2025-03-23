@@ -12,7 +12,7 @@ public class fahrenheit implements LispEvaluator.LispFunction {
             throw new LispEvaluator.EvaluatorException("El argumento de FAHRENHEIT debe ser un número.");
         }
         // Convertir el valor a Celsius (esperamos un Double)
-        Double celsius = ((Number) arg).doubleValue();
+        double celsius = ((Number) arg).doubleValue();
         // Realizar la conversión a Fahrenheit
         return celsius * 9.0 / 5.0 + 32;
     }

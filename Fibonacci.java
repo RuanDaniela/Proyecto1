@@ -17,7 +17,7 @@ public class Fibonacci implements LispEvaluator.LispFunction {
     }
 
     private int calcularFibonacci(int n) {
-        if (n <= 1) return n;
+        if (n <= 1) return n; // Esto produce Fibonacci(0)=0, Fibonacci(1)=1
         return calcularFibonacci(n - 1) + calcularFibonacci(n - 2);
     }
 }
